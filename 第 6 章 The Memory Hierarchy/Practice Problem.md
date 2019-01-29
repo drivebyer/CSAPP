@@ -40,3 +40,7 @@ void clear3(point *p, int n)
 }
 ```
 
+这三个函数都是完成同样的功能，将 struct 数组 **P** 传入函数，并将所有结构体的值置零。讨论这三个函数的空间局部性。
+
+> Rank-order the functions with respect to the spatial locality enjoyed by each.
+
