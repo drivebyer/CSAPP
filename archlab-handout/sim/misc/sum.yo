@@ -1,0 +1,47 @@
+                            | # Execution begins at address 0
+0x000:                      |         .pos 0
+0x000: 30f40004000000000000 |         irmovq stack, %rsp # Set up stack pointer
+0x00a: 804800000000000000   |         call main          # Execute main program
+0x013: 00                   |         halt               # Terminate program
+                            | 
+                            | # Sample linked list
+0x018:                      |         .align 8
+0x018:                      | ele1:
+0x018: 0a00000000000000     |         .quad 0x00a
+0x020: 2800000000000000     |         .quad ele2
+0x028:                      | ele2:
+0x028: b000000000000000     |         .quad 0x0b0
+0x030: 3800000000000000     |         .quad ele3
+0x038:                      | ele3:
+0x038: 000c000000000000     |         .quad 0xc00
+0x040: 0000000000000000     |         .quad 0
+                            | 
+                            | 
+0x048:                      | main:
+0x048: 30f71800000000000000 |         irmovq ele1, %rdi     # 用 %di 来传递参数
+0x052: 805c00000000000000   |         call sum_list
+0x05b: 90                   |         ret
+                            | 
+                            | # long sum_list(list_ptr ls)
+                            | # ls store in %rdi
+                            | 
+0x05c:                      | sum_list:
+0x05c: 30f00000000000000000 |         irmovq $0, %rax       # 将 %rax 初始化为 0，来存储元素和
+                            | 
+0x066:                      | loop:  
+0x066: 6277                 |         andq %rdi, %rdi       # 设置 condition codes
+0x068: 739200000000000000   |         je return             # conditional jump
+                            | 
+0x071: 50670000000000000000 |         mrmovq 0(%rdi), %rsi
+0x07b: 6060                 |         addq %rsi, %rax       # 计算和
+                            | 
+0x07d: 50770800000000000000 |         mrmovq 8(%rdi), %rdi  # 将指针(下一个 struct 的地址)放进 %rdi
+                            | 
+0x087: 6277                 |         andq %rdi, %rdi
+0x089: 746600000000000000   |         jne loop
+                            | 
+0x092:                      | return:
+0x092: 90                   |         ret
+                            | 
+0x400:                      |         .pos 0x400            # TODO 这个值怎么确定？
+0x400:                      | stack:

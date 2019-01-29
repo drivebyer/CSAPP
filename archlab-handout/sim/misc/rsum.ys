@@ -1,0 +1,37 @@
+# Execution begins at address 0
+        .pos 0
+        irmovq stack, %rsp # 设置 stack pointer
+        call main          
+        halt               
+# Sample linked list
+        .align 8
+ele1:
+        .quad 0x00a
+        .quad ele2
+ele2:
+        .quad 0x0b0
+        .quad ele3
+ele3:
+        .quad 0xc00
+        .quad 0
+main:
+        irmovq ele1, %rdi   # 用 %di 来传递参数
+        call rsum_list
+        ret
+# long rsum_list(list_ptr ls)
+# ls store in %rdi
+rsum_list:
+        pushq %r12           # 这个寄存器称为 callee-save registers
+                             # 在这个函数里将要使用到 %r12，所以将里面原有的值保存起来
+        irmovq $0, %rax      # 将 %rax 初始化为 0，来存储元素和
+        andq %rdi, %rdi      # 设置 condition codes
+        je return            # conditional jump
+        mrmovq 0(%rdi), %r12 # 将当前 struct 的 val 值放进寄存器
+        mrmovq 8(%rdi), %rdi # 加载下一个 struct 的地址到寄存器
+        call rsum_list       # 前一个函数还没弹栈，下一个函数接着压栈 (TODO 递归调用的栈帧是什么样的？)
+        addq %r12, %rax      # 计算和
+return:
+        popq %r12            # 函数调用结束时记得从栈中恢复这个寄存器原来的值
+        ret
+        .pos 0x400           # TODO 这个值怎么确定？
+stack:
